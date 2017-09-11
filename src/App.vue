@@ -26,7 +26,6 @@
       }
     },
     methods: {
-      //Estamos tocando el DOM-------------------------------------------------------------------------------------------
       openComponent: function(e){
         if($('#' + e.target.id).hasClass("active")){
           document.getElementById("maestrodetalle").innerHTML = "";

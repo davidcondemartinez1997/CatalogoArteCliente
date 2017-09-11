@@ -13,7 +13,7 @@
       </div>
       <div class="form-group">
         <label class="control-label" for="fechaIni">Fecha de inicio:</label>
-        <input type="date" id="fechaIni" name="fechaIni" class="form-control" v-model="tipoArte.FechaIni"/>
+        <input type="text" id="fechaIni" name="fechaIni" class="form-control" v-model="tipoArte.FechaIni"/>
       </div>
 
       <div class="form-group">
@@ -21,9 +21,9 @@
         <textarea id="composicion" name="composicion" class="form-control" v-model:value="tipoArte.Composicion" />
       </div>
 
-      <div class="form-group">
-      <input type="checkbox" id="colectivo" name="colectivo" class="form-control" v-model:value="tipoArte.Colectivo"/> 
-        <label class="control-label" for="colectivo">¿Es un arte que se crea de manera colectiva?</label>
+      <div>
+      <input type="checkbox" id="colectivo" name="colectivo" v-model:value="tipoArte.Colectivo"/> 
+        <label for="colectivo">¿Es un arte que se crea de manera colectiva?</label>
       </div>
 
       <div class="form-group">

@@ -1,40 +1,39 @@
 <template>
   <div id="form">
     <form v-if="seen" class="form-horizontal" onsubmit="return false">
-      <h1 class="col-sm-12">Formulario Arte <a class="close" v-on:click="close">&times;</a></h1>
+      <div>
+        <h1 class="col-sm-9">Formulario Arte</h1>
+      </div>
+      <div>
+        <button class="form-control btn-success btn-danger col-sm-2" v-on:click="close">Cerrar</button>
+      </div>
       <div class="form-group" v-if="tipos && tipos.length">
         <label  class="control-label">Tipo de arte:</label>
-        <select id="tipo" name="tipoArte" class="form-control" v-on:change="seleccionarTipo" v-model="arte.TipoArte">
-        <option v-for="tipoArte in tipos" v-bind:id="tipoArte.Nombre" v-bind:value="tipoArte.Nombre">{{tipoArte.Nombre}}</option>
+        <select id="tipo" name="tipoArte" class="form-control" v-model="arte.TipoArte">
+          <option v-for="tipoArte in tipos" v-bind:id="tipoArte.Nombre" v-bind:value="tipoArte.Nombre">{{tipoArte.Nombre}}</option>
         </select>
       </div>
       <div v-else>
         No existen tipos de arte creados, por favor crea uno
       </div>
       <div class="form-group">
-        <label  class="control-label col-sm-2">Destinatario:</label>
-        <input type="text" id="destinatario" name="destinatario" class="form-control" v-model:value="arte.Destinatario"/>   
+        <label  class="control-label col-sm-2">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" class="form-control" v-model:value="arte.Nombre"/>   
       </div>
       <div class="form-group">
-        <label class="control-label col-sm-2">Asunto:</label>
-        <input type="text" id="asunto" name="asunto" class="form-control" v-model:value="arte.Asunto"/>   
+        <label class="control-label col-sm-2">Autor:</label>
+        <input type="text" id="autor" name="autor" class="form-control" v-model:value="arte.Autor"/>   
       </div>
       <div class="form-group">
-        <label class="control-label col-sm-2">Contenido:</label>
-        <input type="text" id="contenido" name="contenido" class="form-control" v-model:value="arte.Contenido"/>   
+        <label class="control-label col-sm-2">Pais:</label>
+        <input type="text" id="pais" name="pais" class="form-control" v-model:value="arte.Pais"/>   
       </div>
-      <div class="form-group" v-if="permiteFicheros == true">
-        <label class="control-label col-sm-2">Archivo:</label>
-
-        <input type="file" id="archivo" name="archivo" class="form-control" v-on:change="cambioArchivo"/>   
-      </div>
-      <div  v-if="permiteDestacados == true" class="form-group">
-        <input type="checkbox" id="dest" value="Activado" v-model:value="arte.Destacado"/>
-        <label for="dest">Permitir destacar arte</label>
+      <div class="form-group">
+        <label class="control-label col-sm-2">Precio:</label>
+        <input type="number" id="archivo" name="precio" class="form-control" v-model:value="arte.Precio"/>   
       </div>
       <div class="form-group">
         <button id="submit" value="Enviar" class="form-control btn-success btn-block" v-on:click="enviar">Enviar</button>
-        <button id="remove" value="Eliminar" class="form-control btn-success btn-danger" v-on:click="eliminar" v-if="arte.Id !== -1">Eliminar</button>
       </div>
     </form>
   </div>
@@ -53,19 +52,19 @@
         idSeleccionado: undefined,
         tipos: undefined,
         permiteFicheros: true,
-        permiteDestacados: true,
+        permitePrecios: true,
       }
     },
     methods: {
       enviar: function(){
         let fecha = new Date();
         let data = {
-          Destinatario: this.arte.Destinatario,
-          Asunto: this.arte.Asunto,
-          Contenido: this.arte.Contenido,
-          Archivo: this.arte.Archivo,
+          Nombre: this.arte.Nombre,
+          Autor: this.arte.Autor,
+          Pais: this.arte.Pais,
+          Precio: this.arte.Pais,
           Fecha: fecha.toISOString(),
-          Destacado: this.arte.Destacado,
+          Precio: this.arte.Precio,
           TipoArte: this.arte.TipoArte
         }
 
@@ -76,16 +75,15 @@
             axios.post(url ,data)
             .then(response => {
               this.arte.Id = response.data.Id;
-              this.arte.Destinatario = response.data.Destinatario;
-              this.arte.Asunto = response.data.Asunto;
-              this.arte.Contenido = response.data.Contenido;
-              this.arte.Archivo = response.data.Archivo;
-              this.arte.Destacado = response.data.Destacado;
-              this.arteBackUp.Destinatario = response.data.Destinatario;
-              this.arteBackUp.Asunto = response.data.Asunto;
-              this.arteBackUp.Contenido = response.data.Contenido;
-              this.arteBackUp.Archivo = response.data.Archivo;
-              this.arteBackUp.Destacado = response.data.Destacado;
+              this.arte.TipoArte = response.data.TipoArte;
+              this.arte.Nombre = response.data.Nombre;
+              this.arte.Autor = response.data.Autor;
+              this.arte.Pais = response.data.Pais;
+              this.arte.Precio = response.data.Precio;
+              this.arteBackUp.Nombre = response.data.Nombre;
+              this.arteBackUp.Autor = response.data.Autor;
+              this.arteBackUp.Pais = response.data.Pais;
+              this.arteBackUp.Precio = response.data.Precio;
               this.fireEvent();
             })
             .catch(response => {
@@ -97,7 +95,7 @@
             })
           }
           else{
-            if(this.arte.Destinatario !== this.arteBackUp.Destinatario || this.arte.Asunto !== this.arteBackUp.Asunto || this.arte.Contenido !== this.arteBackUp.Contenido || this.arte.Archivo !== this.arteBackUp.Archivo || this.arte.Destacado !== this.arteBackUp.Destacado || this.arte.TipoArte !== this.arteBackUp.TipoArte){
+            if(this.arte.Nombre !== this.arteBackUp.Nombre || this.arte.Autor !== this.arteBackUp.Autor || this.arte.Pais !== this.arteBackUp.Pais || this.arte.Pais !== this.arteBackUp.Pais || this.arte.Precio !== this.arteBackUp.Precio || this.arte.TipoArte !== this.arteBackUp.TipoArte){
               data.Id = this.arte.Id;
               axios.put(url + data.Id, data)
               .then(response => {
@@ -132,17 +130,6 @@
         this.seen = false;
         EventBus.$emit("seleccionarId", undefined);
       },
-      seleccionarTipo: function(){
-        var selectorTipo = document.getElementById("tipo");
-        var nombre = selectorTipo.options[selectorTipo.selectedIndex].value;
-        this.tipos.forEach((tipo, index)=>{
-          if(tipo.Nombre == nombre){
-            this.arte.TipoArte = this.tipos[index].Nombre;
-            this.permiteDestacados = this.tipos[index].Destacado;
-            this.permiteFicheros = this.tipos[index].Fichero;
-          }
-        });
-      },
       fireEvent: function(){
         swal(
           '',
@@ -155,82 +142,50 @@
 
           );
         },
-        cambioArchivo: function(e){
-          this.arte.Archivo = e.target.value;
+        cambioPais: function(e){
+          this.arte.Pais = e.target.value;
         },
-        eliminar: function(){
-          if(this.arte.Id != -1){
-            swal({
-              title: '¿Quieres eliminar el arte?',
-              type: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-              confirmButtonText: 'Si, eliminar!',
-              cancelButtonText: 'Cancelar'
-            }).then( () => {
-              this.seen = false;
-              axios.delete(url + this.arte.Id)
-              .then(response => {
-                this.fireEvent();
-                swal(
-                  '',
-                  'El arte ha sido borrado.',
-                  'success'
-                  )
-              })
-              .catch(response => {
-                swal(
-                  '',
-                  'Ha ocurrido un error',
-                  'error'
-                  )
-              })
-            })
-
-
-          }
-        }
       },
 
       created() {
         this.seen = true;
         this.arte = this.$parent.arte;
-        if(!this.arte.TipoArte){
-          this.arte.TipoArte = {};
-        }
         this.idSeleccionado = this.$parent.idSeleccionado;
         this.arteBackUp = {
-          Destinatario: this.arte.fDestinatario,
-          Asunto:  this.arte.Asunto,
-          Contenido: this.arte.Contenido,
-          Archivo:  this.arte.Archivo,
-          Destacado: this.arte.Destacado
+          Nombre: this.arte.Nombre,
+          Autor:  this.arte.Autor,
+          TipoArte: this.arte.TipoArte,
+          Pais: this.arte.Pais,
+          Pais:  this.arte.Pais,
+          Precio: this.arte.Precio
         };
         let url = config.address + 'TipoArte/';
         axios.get(url)
         .then(response => {
           this.tipos = response.data;
-          this.arte.TipoArte = response.data[0].Nombre;
+          if(!this.arte.TipoArte){
+            this.arte.TipoArte = response.data[0].Nombre;  
+          }
+
         })
       }
     }
 
     function isFormularioValido(data){
       let arteVal='';
-      /*if(data.TipoArte || data.TipoArte == ""){
+      if(!data.TipoArte || data.TipoArte == ""){
         return 'Debes seleccionar un tipo de arte. Si no existe ninguno crea uno en la pestaña superior Tipo Arte'
-      }*/
-
-      if(!data.Destinatario || data.Destinatario.trim() == ''){
-        return 'El destinatario debe estar relleno.'
-      }
-      if(!data.Asunto || data.Asunto.trim() == ''){
-        return 'El asunto debe estar relleno'
       }
 
-      if(!data.Contenido || data.Contenido.trim() == ''){
-        return 'El contenido debe estar relleno'
+      if(!data.Nombre || data.Nombre.trim() == ''){
+        return 'El nombre debe estar relleno.'
+      }
+      if(!data.Autor || data.Autor.trim() == ''){
+        return 'El autor debe estar relleno'
+      }
+
+      if(!data.Pais || data.Pais.trim() == ''){
+        return 'El pais debe estar seleccionado'
       }
 
       return '';

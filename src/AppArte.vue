@@ -76,7 +76,39 @@
         }
         this.openDetail(arte);
       },
+      eliminar: function(e){
+        let id = e.target.id;
+        swal({
+          title: '¿Quieres eliminar la obra arte?',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si, eliminar!',
+          cancelButtonText: 'Cancelar'
+        }).then( () => {
+          this.seen = false;
+          let url = config.address + 'Arte/';
+          axios.delete(url + id)
+          .then(response => {
+            this.init();
+            swal(
+              '',
+              'La obra de arte ha sido borrada.',
+              'success'
+              )
+          })
+          .catch(response => {
+            swal(
+              '',
+              'Ha ocurrido un error',
+              'error'
+              )
+          })
+        })
 
+
+      },
       openDetail:function(arte){
         new Vue({
           el: '#form',
@@ -99,7 +131,7 @@
             '',
             'Ha ocurrido un error',
             'error'
-          )
+            )
         })
       }
 
