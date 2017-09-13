@@ -1,23 +1,21 @@
-<template>
-  <div id="maestrodetalle">
-    <div id="lista">
-      <h1>Tipos de arte</h1>
+<template class="container-fluid">
+  <div id="maestrodetalle" class="row">
+    <div id="lista" class="col-sm-6">
+      <h1>Lista</h1>
       <table v-if="tipos && tipos.length" class="table table-bordered">
         <thead class="thead-inverse">
           <tr>
             <th>Nombre</th>
             <th>Tangible</th>
-            <th>Fecha de inicio</th>
             <th>Colectivo</th>
             <th>Eliminar</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="tipo of tipos" v-on:click="detail" v-bind:id="tipo.Id" v-bind:class="{ 'table-active': tipo.Id == idSeleccionado}">
+          <tr v-for="(tipo, index) of tipos" v-on:click="detail" v-bind:id="index" v-bind:class="{ 'table-active': tipo.Id == idSeleccionado}">
             <td> {{tipo.Nombre}}</td>
             <td v-if= "tipo.Tangible"> Si </td>
             <td v-else> No </td>
-            <td> {{new Date(tipo.FechaIni).toLocaleDateString()}}</td>
             <td v-if="tipo.Colectivo"> Si </td>
             <td v-else> No </td>
             <td><button v-bind:id="tipo.Id" value="Eliminar" class="form-control btn-success btn-danger" v-on:click="eliminar">Eliminar</button> </td>
@@ -26,7 +24,9 @@
       </table>
       <button id="submit" class="btn btn-success btn-block" v-on:click="nuevo">Nuevo</button>
     </div>
-    <div id="form" ></div>
+    <div id="form" class="col-sm-6">
+      <h3>Selecciona un elemento de la lista para continuar</h3>
+    </div>
   </div>
 
 </template>
@@ -51,20 +51,20 @@
         if(id == ""){
           id = e.target.parentNode.id;
         }
-        this.idSeleccionado = id;
-        this.tipos.forEach((p, index) => {
-          if(p.Id == id){
-            let tipoArte = {
-              Nombre: p.Nombre,
-              Tangible: p.Tangible,
-              FechaIni: p.FechaIni,
-              Composicion: p.Composicion,
-              Colectivo: p.Colectivo,
-              Id: p.Id
-            }
-            this.openDetail(tipoArte);
-          }
-        });
+        
+        //Le doy a los id de los tr su posicion en el array en vez de el id del arte.
+        //Al hacer esto me ahorro recorrer todo el array en busca de ese id
+        let selected = this.tipos[id];
+
+        let tipoArte = {
+          Nombre: selected.Nombre,
+          Tangible: selected.Tangible,
+          FechaIni: selected.FechaIni,
+          Composicion: selected.Composicion,
+          Colectivo: selected.Colectivo,
+          Id: selected.Id
+        }
+        this.openDetail(tipoArte);
       },
       nuevo: function (e) {
         let tipoArte = {
@@ -89,7 +89,8 @@
         EventBus.$on("seleccionarId",(id)=>{this.idSeleccionado = id});
       },
       eliminar: function(e){
-        let id = e.target.Id;
+        let id = e.target.id;
+        let url = config.address + 'TipoArte/';
         swal({
           title: '¿Quieres eliminar el tipo de arte?',
           type: 'warning',
@@ -102,7 +103,7 @@
           this.seen = false;
           axios.delete(url + id)
           .then(response => {
-            this.fireEvent();
+            this.init();
             swal(
               '',
               'El tipo de arte ha sido borrado.',

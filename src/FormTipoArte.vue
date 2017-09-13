@@ -1,11 +1,16 @@
-<template>
-  <div id="form">
+<template class="row">
+  <div id="form" class="col-sm-6">
     <form v-if="seen" class="form-horizontal" onsubmit="return false" >
 
-      <h1>Formulario Tipo de Arte <a class="close" v-on:click="close">&times;</a></h1>
-      <div class="form-group">
-        <label class="control-label">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" class="form-control" v-model:value="tipoArte.Nombre"/>   
+     <div class="col-sm-7" style="display: inline-block">
+      <h1>Formulario</h1>
+    </div>
+    <div class="col-sm-4" style="display: inline-block">
+      <button class="form-control btn-success btn-info" v-on:click="close">Cerrar</button>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" class="form-control" v-model:value="tipoArte.Nombre"/>   
       </div>
       <div class="form-group">
         <input type="checkbox" id="tangible" name="tangible" v-model:value="tipoArte.Tangible"/> 
@@ -13,16 +18,17 @@
       </div>
       <div class="form-group">
         <label class="control-label" for="fechaIni">Fecha de inicio:</label>
-        <input type="text" id="fechaIni" name="fechaIni" class="form-control" v-model="tipoArte.FechaIni"/>
+        <input v-if="tipoArte.FechaIni" type="date" id="fechaIni" name="fechaIni" class="form-control" v-bind:value="new Date(tipoArte.FechaIni).toISOString().split('T')[0]" v-on:change="cambiarFecha"/>
+        <input v-else type="date" id="fechaIni" name="fechaIni" class="form-control" v-bind:value="tipoArte.FechaIni" v-on:change="cambiarFecha"/>
       </div>
 
       <div class="form-group">
         <label class="control-label">Composicion</label>
-        <textarea id="composicion" name="composicion" class="form-control" v-model:value="tipoArte.Composicion" />
+        <textarea id="composicion" name="composicion" class="form-control" rows="4" v-model:value="tipoArte.Composicion" />
       </div>
 
       <div>
-      <input type="checkbox" id="colectivo" name="colectivo" v-model:value="tipoArte.Colectivo"/> 
+        <input type="checkbox" id="colectivo" name="colectivo" v-model:value="tipoArte.Colectivo"/> 
         <label for="colectivo">¿Es un arte que se crea de manera colectiva?</label>
       </div>
 
@@ -31,6 +37,9 @@
       </div>
 
     </form>
+    <div v-else>
+      <h3>Selecciona un elemento de la lista para continuar</h3>
+    </div>
   </div>
 </template>
 
@@ -38,6 +47,8 @@
   import axios from 'axios';
   import {EventBus} from './EventBus.js';
   import Vue from 'vue'
+  import VeeValidate from 'vee-validate';
+  Vue.use(VeeValidate);
 
   let url = config.address + 'TipoArte/';
   export default {
@@ -52,11 +63,12 @@
    methods: {
     enviar: function(){
       let preventUpdate = false;
-
+      let FechaIni = new Date(this.tipoArte.FechaIni);
+      FechaIni.setHours(12);
       let data = {
         Nombre: this.tipoArte.Nombre,
         Tangible: this.tipoArte.Tangible,
-        FechaIni: this.tipoArte.FechaIni,
+        FechaIni: FechaIni.toISOString(),
         Composicion: this.tipoArte.Composicion,
         Colectivo: this.tipoArte.Colectivo,
       }
@@ -83,7 +95,7 @@
               )
           })
         }else{
-          if(this.tipoArteBackUp.Nombre !== this.tipoArte.Nombre || this.tipoArteBackUp.Tangible !== this.tipoArte.Tangible  || this.tipoArteBackUp.FechaIni !== this.tipoArte.FechaIni || this.tipoArteBackUp.Composicion !== this.tipoArte.Composicion || this.tipoArteBackUp.Colectivo !== this.tipoArte.Colectivo){
+          if(this.tipoArteBackUp.Nombre !== this.tipoArte.Nombre || this.tipoArteBackUp.Tangible !== this.tipoArte.Tangible  || this.tipoArteBackUp.FechaIni !== this.tipoArte.FechaIni || this.tipoArteBackUp.Composicion !== this.tipoArte.Composicion || this.tipoArteBackUp.Colectivo !== this.tipoArte.Colectivo || this.tipoArteBackUp.FechaIni !== this.tipoArte.FechaIni){
             data.Id = this.tipoArte.Id;
             axios.put(url + data.Id, data)
             .then(response => {
@@ -128,7 +140,9 @@
 
       return '';
     },
-
+    cambiarFecha: function(e){
+      this.tipoArte.FechaIni = e.target.value;
+    },
     fireEvent: function(){
       swal(
         '',
@@ -159,6 +173,7 @@
         Colectivo: this.tipoArte.Colectivo,
       };
       this.idSeleccionado = this.$parent.idSeleccionado;
+      console.log(this.tipoArte.FechaIni);
     },
   }
 </script>

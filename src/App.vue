@@ -6,7 +6,7 @@
       <button type="button" id="tipoArte" class="btn btn-md btn-outline-primary" v-on:click="openComponent">Tipo Arte</button>
     </header>
     
-    <div id="maestrodetalle" class="col-sm-4"></div>
+    <div id="maestrodetalle"></div>
     <div id="messages"></div>
   </div>
 </template>

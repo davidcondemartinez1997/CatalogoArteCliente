@@ -1,16 +1,16 @@
-<template>
-  <div id="form">
+<template class="row">
+  <div id="form" class="col-sm-6">
     <form v-if="seen" class="form-horizontal" onsubmit="return false">
-      <div>
-        <h1 class="col-sm-9">Formulario Arte</h1>
+      <div class="col-sm-7" style="display: inline-block">
+        <h1>Formulario</h1>
       </div>
-      <div>
-        <button class="form-control btn-success btn-danger col-sm-2" v-on:click="close">Cerrar</button>
+      <div class="col-sm-4" style="display: inline-block">
+        <button class="form-control btn-success btn-info" v-on:click="close">Cerrar</button>
       </div>
       <div class="form-group" v-if="tipos && tipos.length">
         <label  class="control-label">Tipo de arte:</label>
         <select id="tipo" name="tipoArte" class="form-control" v-model="arte.TipoArte">
-          <option v-for="tipoArte in tipos" v-bind:id="tipoArte.Nombre" v-bind:value="tipoArte.Nombre">{{tipoArte.Nombre}}</option>
+          <option v-for="tipoArte in tipos" v-bind:value="tipoArte.Id" >{{tipoArte.Nombre}}</option>
         </select>
       </div>
       <div v-else>
@@ -26,22 +26,33 @@
       </div>
       <div class="form-group">
         <label class="control-label col-sm-2">Pais:</label>
-        <input type="text" id="pais" name="pais" class="form-control" v-model:value="arte.Pais"/>   
+        <select id="pais" class="form-control" v-model="arte.Pais">
+          <option v-for="country of countries" v-bind:value="country.code">{{country.name}}</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="control-label col-sm-2">Precio:</label>
-        <input type="number" id="archivo" name="precio" class="form-control" v-model:value="arte.Precio"/>   
+        <div class="input-group">
+          <input type="number" id="archivo" min="0" step="0.50" data-number-to-fixed="2" data-number-stepfactor="100" name="precio" class="form-control currency" v-model:value="arte.Precio"/>     
+          <span class="input-group-addon">€</span>
+        </div>
+        
       </div>
       <div class="form-group">
         <button id="submit" value="Enviar" class="form-control btn-success btn-block" v-on:click="enviar">Enviar</button>
       </div>
     </form>
+    <div v-else>
+      <h3>Selecciona un elemento de la lista para continuar</h3>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
   import {EventBus} from './EventBus.js';
+  import {countries} from './countries.js'
+  
   let url = config.address + 'Arte/';
   export default {
     name: 'app',
@@ -53,6 +64,7 @@
         tipos: undefined,
         permiteFicheros: true,
         permitePrecios: true,
+        countries: countries,
       }
     },
     methods: {
@@ -95,7 +107,7 @@
             })
           }
           else{
-            if(this.arte.Nombre !== this.arteBackUp.Nombre || this.arte.Autor !== this.arteBackUp.Autor || this.arte.Pais !== this.arteBackUp.Pais || this.arte.Pais !== this.arteBackUp.Pais || this.arte.Precio !== this.arteBackUp.Precio || this.arte.TipoArte !== this.arteBackUp.TipoArte){
+            if(this.arte.Nombre !== this.arteBackUp.Nombre || this.arte.Autor !== this.arteBackUp.Autor || this.arte.Pais !== this.arteBackUp.Pais || this.arte.Precio !== this.arteBackUp.Precio || this.arte.TipoArte !== this.arteBackUp.TipoArte){
               data.Id = this.arte.Id;
               axios.put(url + data.Id, data)
               .then(response => {
@@ -151,6 +163,7 @@
         this.seen = true;
         this.arte = this.$parent.arte;
         this.idSeleccionado = this.$parent.idSeleccionado;
+        this.tipos = this.$parent.tiposArte;
         this.arteBackUp = {
           Nombre: this.arte.Nombre,
           Autor:  this.arte.Autor,
@@ -159,15 +172,7 @@
           Pais:  this.arte.Pais,
           Precio: this.arte.Precio
         };
-        let url = config.address + 'TipoArte/';
-        axios.get(url)
-        .then(response => {
-          this.tipos = response.data;
-          if(!this.arte.TipoArte){
-            this.arte.TipoArte = response.data[0].Nombre;  
-          }
 
-        })
       }
     }
 
